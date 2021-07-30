@@ -7,7 +7,28 @@ level = 1
 correct = 0
 rounds = 0
 totalDuration = 0
-startTimer = time()
+sglVarDifficultyOffset = 0
+levelsToDecrease = 2
+
+# Game settings
+operatorList = ["+", "-", "*", "/"]
+operatorString = ", ".join(operatorList)
+
+def calculate(a, b, operator):
+    string = "%s%s%s" % (a, operator, b)
+    c = eval(string)
+    return c
+
+def scoreAnswer(answer, c, level, correct):
+    if answer == c:
+        print("Correct")
+        correct += 1
+        level += 1
+    else:
+        print("Incorrect: %s" % c)
+        correct = False
+        level -= levelsToDecrease
+    return correct, level
 
 def setDigits(difficulty):
     varALevel= 0
@@ -33,38 +54,41 @@ def validateInt(text):
     print(text, end=" ")
     fail = True
     while fail:
-        entry = input()
+        entry = input().strip()
         try:
-            output = int(entry.strip())
+            output = int(entry)
             fail = False
         except:
             print("Please input a whole number:", end=" ")
     return output
 
-# Game settings
+def validateOperator(text):
+    print(text, end=" ")
+    fail = True
+    while fail:
+        entry = input().strip()
+        if entry in operatorList:
+            output = entry
+            fail = False
+        else:
+            print("Please input on operator %s:" % operatorString, end=" ")
+    return output
+
+# User settings
+operator = validateOperator("What operator %s:" % operatorString)
 roundsToAdvance = validateInt("No. of correct rounds before advancing:")
 gameDuration = validateInt("Duration of game in minutes:")
 singleVariableInc = True
-sglVarDifficultyOffset = 0
 
+startTimer = time()
 while totalDuration < gameDuration:
     difficulty = ceil(level / roundsToAdvance) 
     minA, maxA, minB, maxB = setDigits(difficulty)
-
     a = randrange(minA, maxA)
     b = randrange(minB, maxB) 
-    c = a * b
-
-    answer = validateInt("%s x %s =" % (a, b))
-
-    if answer == c:
-        print("Correct")
-        correct += 1
-        level += 1
-    else:
-        print("Incorrect: %s" % c)
-        level -= 3
-        level = level * 1 
+    c = calculate(a, b, operator)
+    answer = validateInt("%s %s %s =" % (a, operator, b))
+    correct, level = scoreAnswer(answer, c, level, correct)
     rounds += 1 
     totalDuration = (time() - startTimer) / 60
 
