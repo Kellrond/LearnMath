@@ -1,6 +1,8 @@
 from math import ceil
 from random import randrange
+from datetime import date, datetime
 from time import time
+import json
 
 # Game variables
 level = 1
@@ -26,7 +28,7 @@ def scoreAnswer(answer, c, level, correct):
         level += 1
     else:
         print("Incorrect: %s" % c)
-        correct = False
+        correct = 0
         level -= levelsToDecrease
     return correct, level
 
@@ -94,3 +96,18 @@ while totalDuration < gameDuration:
 
 print("Completed %s rounds in %s minutes" % (rounds, totalDuration))
 print("%s correct and %s incorrect %s percentage correct" % (correct, rounds - correct, "{:.1%}".format(correct / rounds)))
+
+log = {
+    'timestamp': datetime.strftime(datetime.now(), '%Y-%m-%d'),
+    'operator': operator,
+    'roundsToAdvance': roundsToAdvance,
+    'gameDuration': gameDuration,
+    'singleVariableInc': singleVariableInc,
+    'level': level,
+    'rounds': rounds,
+    'correct': correct
+}
+
+with open('log.json', 'a') as file:
+    jsonLog = json.dumps(log)
+    file.write(jsonLog + "\n")    
